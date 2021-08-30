@@ -1,18 +1,13 @@
 #!/bin/bash
 #ContainerizedVirus script
 #Made by Juan Soberanes
+#updated 8/30 with new changes
 #sudo check
 if ! [ $(id -u) = 0 ]; then echo "Please run this script as sudo or root"; exit 1 ; fi
 
 apt update
 apt install vinagre linux-headers-gcp virtualbox apt-transport-https ca-certificates curl software-properties-common -y
 
-#-------Docker-------
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable"
-apt update
-apt-cache policy docker-ce > docker-ce.log
-apt install docker-ce -y
 #---RDP-----
 useramount=2
 username="baccc"
@@ -53,39 +48,3 @@ mkdir /home/baccc2/container/
 wget https://storage.googleapis.com/malware-container/winxp_1.ova
 #This should fix it
 mv winxp_1.ova /home/baccc2/container/
-
-#Download required files
-cat > /home/baccc2/container/Installwindowsxp.sh <<EOF
-#####This is all done inside of the container####
-#Update and Upgrade the Ubuntu System and Repositories
-apt update 
-apt install virtualbox -y 
-apt install virtualbox-dkms -y
-apt install linux-headers-gcp -y
-apt install linux-headers-generic -y 
-cd /home/baccc2/container/
-#Import VM 
-VBoxManage import winxp_1.ova
-#Set Password
-VBoxManage modifyvm winxp_1 --vrdeproperty VNCPassword=secret
-#Start Windows XP
-VBoxHeadless -v on -startvm winxp_1
-EOF
-
-cat > /home/baccc2/container/Dockerfile <<EOF
-FROM ubuntu:bionic
-WORKDIR /home/baccc2/container/
-EXPOSE 3389
-COPY winxp_1.ova .
-COPY Installwindowsxp.sh .
-RUN chmod +x Installwindowsxp.sh
-EOF
-
-cd /home/baccc2/container/
-systemctl unmask docker
-systemctl start docker
-docker pull ubuntu:bionic
-docker stop winxp_1
-docker rm winxp_1
-docker build --tag winxp_1 .
-docker run --rm -it --privileged=true -p 3389:3389 --name winxp_1 winxp_1:latest /bin/sh -c "./Installwindowsxp.sh"
