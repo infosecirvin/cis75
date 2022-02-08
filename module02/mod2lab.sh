@@ -6,7 +6,7 @@
 if ! [ $(id -u) = 0 ]; then echo "Please run this script as sudo or root"; exit 1 ; fi
 
 apt update
-apt install vinagre linux-headers-gcp virtualbox apt-transport-https ca-certificates curl software-properties-common -y
+apt install vinagre linux-headers-gcp virtualbox apt-transport-https ca-certificates curl wget software-properties-common -y
 
 #---RDP-----
 useramount=2
